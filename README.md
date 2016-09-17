@@ -1,8 +1,11 @@
 Get Your Star Wars data here!
 
-clone:
+clone: 
+
 install: npm install
+
 intall: bower install
+
 run: gulp
 
 '/:name' - Returns an EJS view with data about the given character. 
