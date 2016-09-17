@@ -1,6 +1,6 @@
-Get Your Star Wars data here!
+Get your Star Wars data here!
 
-clone: 
+clone Repo: https://github.com/bheby3/star_wars_express_challenge.git
 
 install: npm install
 
