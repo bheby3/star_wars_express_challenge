@@ -9,7 +9,7 @@ var router = function () {
   planetRouter.route('/')
     .get(function (req, res) {
 
-      var url = 'http://swapi.co/api/planets/';
+      let url = 'http://swapi.co/api/planets/';
 
       request({
         method: 'GET',
@@ -18,47 +18,19 @@ var router = function () {
       }, function (error, response, body) {
         if (error) res.sendStatus(500);
         else {
+          let planets = JSON.parse(body).results;
 
-          var planets = JSON.parse(body).results;
-
-          var residentUrlArray = planets.map(function (planet) {
+          /*Get Urls for each planet resident*/
+          let residentUrlArray = planets.map(function (planet) {
             return planet.residents;
           });
 
-          var formatPlanetResidentsObj = planets.map(function (planet) {
-            var key = planet.name.toString();
-            var planetObj = {};
-            planetObj[key] = [];
-            if (planet.residents.length > 0) {
-              for (var i = 0; i < planet.residents.length; i++) {
-                planetObj[key].push(planet.residents[i]);
-              }
-            }
-            return planetObj;
-          });
-
-
-          function createFormattedObj() {
-            var planetObj = {};
-
-            function innerPlanet() {
-              for (var i = 0; i < planets.length; i++) {
-                (function (pobj) {
-                  var key = planets[i].name.toString();
-                  pobj[key] = [];
-                  return planetObj
-                })(planetObj);
-              }
-              return planetObj
-            }
-            return innerPlanet
-          }
-
-          var planetPropArrayObj = createFormattedObj()();
+          /*flatten resident url array to for async.map and fetch*/
           var merged = residentUrlArray.concat.apply([], residentUrlArray);
-          // console.log(merged);
-          var fetch = function (url, cb) {
-            request.get(url, function (err, response, body) {
+
+          /*Fetch each Resident */
+          var fetch = function (fetch, cb) {
+            request.get(fetch, function (err, response, body) {
               if (err) {
                 cb(err);
               } else {
@@ -71,32 +43,46 @@ var router = function () {
             if (err) {
               console.log(err);
             } else {
-              mapResults(results, planetPropArrayObj, formatPlanetResidentsObj, planets);
+              mapResults(results, planets);
             }
           });
         }
       });
 
-      function mapResults(residents, plan, format, planets) {
-        var residentNames = residents.map(function (resident) {
+      /*Format object with planet{planet: [residents[0])*/
+      function mapResults(residents, planets) {
+
+        /*create object format {planet: []}*/
+        let format = planets.map(function (planet) {
+          let key = planet.name.toString();
+          let planetObj = {};
+          planetObj[key] = [];
+          if (planet.residents.length > 0) {
+            for (let i = 0; i < planet.residents.length; i++) {
+              planetObj[key].push(planet.residents[i]);
+            }
+          }
+          return planetObj;
+        });
+          /*create list of names from arguments*/
+        let residentNames = residents.map(function (resident) {
           return resident.name;
         });
-
-        var numberResidentsPerPlanet = format.map(function (planet) {
-          var num;
+        /*create an array for number of residents per planet*/
+        let numberResidentsPerPlanet = format.map(function (planet) {
+          let num;
           for (prop in planet) {
             num = planet[prop].length;
           }
           return num;
         });
-
+        /*pass in the residents for each planet*/
         function rePopulatePlanets() {
-          var count = 0;
-          var j = 0;
-
-          var newResArray = numberResidentsPerPlanet.map(function (x) {
-            var list = [];
-            var i = 0;
+          let count = 0;
+          let j = 0;
+          let newResArray = numberResidentsPerPlanet.map(function (x) {
+            let list = [];
+            let i = 0;
             j = count;
             while (i < x) {
               list.push(residentNames[j]);
@@ -105,22 +91,25 @@ var router = function () {
             }
             count += x;
             return list;
-
           });
-
-          var z = 0;
-          var finished = planets.map(function (planet) {
-            var key = JSON.stringify(planet.name);
-            var planetObj = {};
-            planetObj[key] = newResArray[z];
-            z++;
-            return planetObj;
-          });
-          return finished;
+          /*format object to JSON*/
+          function planetsRepopulated() {
+            let i = 0;
+            let planetsRepopulated = planets.map(function (planet) {
+              let key = JSON.stringify(planet.name);
+              let planetObj = {};
+              planetObj[key] = newResArray[i];
+              i++;
+              return planetObj;
+            });
+            return planetsRepopulated;
+          }
+          return planetsRepopulated
         }
-        var finished = rePopulatePlanets();
 
-        res.send(finished);
+        let finishedPlanetsObj = rePopulatePlanets()();
+
+        res.send(finishedPlanetsObj);
       }
 
     });

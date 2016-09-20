@@ -1,10 +1,11 @@
-var gulp = require('gulp');
-var jshint = require('gulp-jshint');
-var jscs = require('gulp-jscs');
-var nodemon = require('gulp-nodemon');
+// var gulp = require('gulp');
+// var jshint = require('gulp-jshint');
+// var jscs = require('gulp-jscs');
+// var nodemon = require('gulp-nodemon');
+import nodemon from 'gulp-nodemon';
+import gulp from 'gulp';
 
 var jsFiles = ['*.js', 'src/**/*.js'];
-
 
 gulp.task('inject', function () {
     var wiredep = require('wiredep').stream;
