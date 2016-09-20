@@ -8,7 +8,7 @@ intall: bower install
 
 run: gulp
 
-'/:name' - Returns an EJS view with data about the given character. 
+'/character/:name' - Returns an EJS view with data about the given character. 
 
 '/characters' - Returns raw JSON of 50 characters (doesn't matter which 50). 
 This endpoint should takes a query parameter in the URL called 'sort' 
