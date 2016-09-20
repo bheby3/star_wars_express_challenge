@@ -1,10 +1,10 @@
 var express = require('express');
 var request = require('request');
-var async = require('async');
 
 var app = express();
 
 var port = process.env.PORT || 5000;
+
 var nav = [{
   Link: '/characters',
   Text: 'CharacterList'
@@ -16,7 +16,6 @@ var nav = [{
 var singleCharacter = require('./src/routes/singleCharacterRoute')(nav);
 var characters = require('./src/routes/charactersRoute')(nav);
 var planet = require('./src/routes/planetRoute')(nav);
-
 
 app.use(express.static('public'));
 app.set('views', './src/views');
